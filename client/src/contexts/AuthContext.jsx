@@ -16,6 +16,11 @@ export function AuthProvider({ children }) {
       const { token, user } = res.data;
       localStorage.setItem('billbyte_token', token);
       localStorage.setItem('billbyte_user', JSON.stringify(user));
+      // ✅ Persist the tenant slug from the server's response so all
+      // subsequent API calls (menu, orders, etc.) use the correct restaurant.
+      if (user?.tenantSlug) {
+        localStorage.setItem('billbyte_tenant_slug', user.tenantSlug);
+      }
       setUser(user);
       return { success: true };
     } catch (err) {
@@ -28,6 +33,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('billbyte_token');
     localStorage.removeItem('billbyte_user');
+    localStorage.removeItem('billbyte_tenant_slug');
     setUser(null);
   };
 

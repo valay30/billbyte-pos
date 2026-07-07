@@ -44,6 +44,8 @@ router.post('/login', authLimiter, async (req, res) => {
     );
 
     delete user.password;
+    // ✅ Attach tenantSlug so the client can persist it in localStorage
+    user.tenantSlug = slug;
     res.json({ token, user, tenant: req.tenant });
   } catch (err) {
     console.error(err);
