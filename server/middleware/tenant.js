@@ -30,9 +30,18 @@ function extractSlug(req) {
 
 async function tenantMiddleware(req, res, next) {
   try {
-    const slug = extractSlug(req);
+    let slug = extractSlug(req);
+    // Sanitize: trim whitespace and lowercase
+    slug = (slug || '').trim().toLowerCase();
+    
+    console.log(`[TenantMW] method=${req.method} path=${req.path} host=${req.headers.host} x-tenant-slug=${req.headers['x-tenant-slug']} → resolved slug="${slug}"`);
+    
+    if (!slug) {
+      slug = process.env.DEFAULT_TENANT_SLUG || 'demo';
+    }
+    
     await getPlatformDb(); // ensure platform db is initialized
-    const tenants = await queryPlatform('SELECT * FROM tenants WHERE slug = ?', [slug]);
+    const tenants = await queryPlatform('SELECT * FROM tenants WHERE slug = $1', [slug]);
 
     if (!tenants.length) {
       return res.status(404).json({ error: `Restaurant "${slug}" not found. Please check your URL.` });
