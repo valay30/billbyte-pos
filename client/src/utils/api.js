@@ -32,7 +32,8 @@ export function getTenantSlug() {
 }
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  // Use relative '/api' so it automatically uses the current domain (e.g. Render or localhost)
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 15000,
 });
 
