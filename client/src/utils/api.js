@@ -11,18 +11,7 @@ export function getTenantSlug() {
   const urlTenant = urlParams.get('tenant');
   if (urlTenant) return urlTenant.trim().toLowerCase();
 
-  const hostname = window.location.hostname;
-
-  // 2. Custom subdomain on a real domain (e.g. caferoy.billbyte.com)
-  const isSharedHost = hostname.includes('onrender.com') || hostname.includes('vercel.app') || hostname === 'localhost' || hostname === '127.0.0.1';
-  if (!isSharedHost) {
-    const parts = hostname.split('.');
-    if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'admin') {
-      return parts[0];
-    }
-  }
-
-  // 3. localStorage (set on login / restaurant code input)
+  // 2. localStorage (set on login / restaurant code input)
   const stored = localStorage.getItem('billbyte_tenant_slug');
   if (stored && stored !== 'undefined' && stored !== 'null' && stored.trim()) {
     return stored.trim().toLowerCase();
@@ -50,9 +39,13 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
   response => response,
   error => {
-    if (error.response?.status === 401) {
+    // If unauthorized, OR if the restaurant was deleted (404 Restaurant not found)
+    const isTenantMissing = error.response?.status === 404 && error.response?.data?.error?.includes('not found');
+    
+    if (error.response?.status === 401 || isTenantMissing) {
       localStorage.removeItem('billbyte_token');
       localStorage.removeItem('billbyte_user');
+      localStorage.removeItem('billbyte_tenant_slug');
       window.location.href = '/login';
     }
     return Promise.reject(error);

@@ -11,19 +11,7 @@ const { getPlatformDb, queryPlatform } = require('../database/platform');
 const jwt = require('jsonwebtoken');
 
 function extractSlug(req) {
-  const host = (req.headers.host || '').split(':')[0]; // strip port
-
-  // 1. Custom production subdomain: caferoy.billbyte.com → "caferoy"
-  //    Skip free hosting domains (*.onrender.com, *.vercel.app) — they are shared
-  const isSharedHost = host.includes('onrender.com') || host.includes('vercel.app') || host === 'localhost' || host === '127.0.0.1';
-  if (!isSharedHost) {
-    const parts = host.split('.');
-    if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'admin') {
-      return parts[0];
-    }
-  }
-
-  // 2. X-Tenant-Slug header (set by React frontend interceptor)
+  // 1. X-Tenant-Slug header (set by React frontend interceptor)
   const headerSlug = (req.headers['x-tenant-slug'] || '').trim().toLowerCase();
   if (headerSlug && headerSlug !== 'undefined' && headerSlug !== 'null') {
     return headerSlug;
