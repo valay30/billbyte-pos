@@ -6,21 +6,29 @@ import axios from 'axios';
  * Development: localhost            → from localStorage or "demo"
  */
 export function getTenantSlug() {
+  // 1. URL query param (used by QR menu links: /menu/1?tenant=cafetwo)
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlTenant = urlParams.get('tenant');
+  if (urlTenant) return urlTenant.trim().toLowerCase();
+
   const hostname = window.location.hostname;
-  
-  // Do not try to extract subdomains if we are using free hosting domains
-  if (hostname.includes('onrender.com') || hostname.includes('vercel.app') || hostname === 'localhost') {
-    return localStorage.getItem('billbyte_tenant_slug') || 'demo';
+
+  // 2. Custom subdomain on a real domain (e.g. caferoy.billbyte.com)
+  const isSharedHost = hostname.includes('onrender.com') || hostname.includes('vercel.app') || hostname === 'localhost' || hostname === '127.0.0.1';
+  if (!isSharedHost) {
+    const parts = hostname.split('.');
+    if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'admin') {
+      return parts[0];
+    }
   }
 
-  const parts = hostname.split('.');
-  // Subdomain detected (e.g. caferoy.billbyte.com)
-  if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'admin') {
-    return parts[0];
+  // 3. localStorage (set on login / restaurant code input)
+  const stored = localStorage.getItem('billbyte_tenant_slug');
+  if (stored && stored !== 'undefined' && stored !== 'null' && stored.trim()) {
+    return stored.trim().toLowerCase();
   }
-  
-  // Local development / Fallback
-  return localStorage.getItem('billbyte_tenant_slug') || 'demo';
+
+  return 'demo';
 }
 
 const api = axios.create({
