@@ -7,12 +7,19 @@ import axios from 'axios';
  */
 export function getTenantSlug() {
   const hostname = window.location.hostname;
+  
+  // Do not try to extract subdomains if we are using free hosting domains
+  if (hostname.includes('onrender.com') || hostname.includes('vercel.app') || hostname === 'localhost') {
+    return localStorage.getItem('billbyte_tenant_slug') || 'demo';
+  }
+
   const parts = hostname.split('.');
   // Subdomain detected (e.g. caferoy.billbyte.com)
   if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'admin') {
     return parts[0];
   }
-  // Local development: use stored slug or default
+  
+  // Local development / Fallback
   return localStorage.getItem('billbyte_tenant_slug') || 'demo';
 }
 
