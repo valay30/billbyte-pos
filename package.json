@@ -1,0 +1,11 @@
+{
+  "name": "savoria-pos",
+  "version": "1.0.0",
+  "description": "Savoria Restaurant POS & Management System",
+  "scripts": {
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "seed": "cd server && node database/seed.js",
+    "start:server": "cd server && node index.js"
+  }
+}
