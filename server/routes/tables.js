@@ -81,8 +81,13 @@ router.get('/:id/qr', auth, async (req, res) => {
   try {
     const db = await getTenantDb(req.tenantSlug);
     const settRes = await db.get("SELECT value FROM settings WHERE key = 'table_qr_base_url'");
-    const baseUrl = settRes ? settRes.value : 'http://localhost:5000/menu';
-    const url = `${baseUrl}/${req.params.id}`;
+    let baseUrl = settRes ? settRes.value : (process.env.APP_URL ? process.env.APP_URL + '/menu' : 'http://localhost:5000/menu');
+    
+    let url = `${baseUrl}/${req.params.id}`;
+    if (baseUrl.includes('onrender.com') || baseUrl.includes('vercel.app') || baseUrl.includes('localhost')) {
+      url += `?tenant=${req.tenantSlug}`;
+    }
+    
     const qrData = await QRCode.toDataURL(url, { width: 300, margin: 2 });
     await db.run('UPDATE tables SET qr_code = ? WHERE id = ?', [qrData, req.params.id]);
     res.json({ qr_code: qrData, url });

@@ -1,9 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { formatCurrency } from '../../utils/helpers';
 
-const api = axios.create({ baseURL: 'http://localhost:5000/api' });
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const api = axios.create({ baseURL: apiBase });
+
+api.interceptors.request.use(config => {
+  const urlParams = new URLSearchParams(window.location.search);
+  let slug = urlParams.get('tenant');
+  if (!slug) {
+    const hostname = window.location.hostname;
+    if (!hostname.includes('onrender.com') && !hostname.includes('vercel.app') && hostname !== 'localhost') {
+      slug = hostname.split('.')[0];
+    } else {
+      slug = localStorage.getItem('billbyte_tenant_slug') || 'demo';
+    }
+  }
+  if (slug) config.headers['X-Tenant-Slug'] = slug;
+  return config;
+});
 
 export default function CustomerMenu() {
   const { tableId } = useParams();
