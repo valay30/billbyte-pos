@@ -46,7 +46,11 @@ api.interceptors.response.use(
       localStorage.removeItem('billbyte_token');
       localStorage.removeItem('billbyte_user');
       localStorage.removeItem('billbyte_tenant_slug');
-      window.location.href = '/login';
+      
+      // Only redirect if we are not already on the login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
