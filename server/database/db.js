@@ -47,6 +47,9 @@ function cleanParams(params) {
   return params;
 }
 
+/** Set of schema names that have been initialized this process lifetime */
+const initializedSchemas = new Set();
+
 /**
  * Returns a db helper scoped to a tenant's schema.
  * All SQL is automatically run inside SET search_path TO tenant_{slug}.
@@ -54,6 +57,20 @@ function cleanParams(params) {
 async function getTenantDb(slug) {
   if (!slug) throw new Error('Tenant slug is required');
   const schemaName = `tenant_${slug.replace(/[^a-z0-9_]/gi, '_').toLowerCase()}`;
+
+  // Lazy schema init: ensure tables exist on first use per process lifetime
+  if (!initializedSchemas.has(schemaName)) {
+    try {
+      const { initSchema } = require('./schema');
+      await initSchema(slug);
+      initializedSchemas.add(schemaName);
+      console.log(`[DB] Schema auto-initialized for tenant: ${slug}`);
+    } catch (initErr) {
+      console.error(`[DB] Schema init warning for ${slug}:`, initErr.message);
+      // Still continue — tables might already exist
+      initializedSchemas.add(schemaName);
+    }
+  }
 
   async function runInSchema(sql, params = []) {
     const client = await pool.connect();

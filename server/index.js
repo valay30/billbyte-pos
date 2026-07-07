@@ -14,6 +14,9 @@ const helmet = require('helmet');
 const app = express();
 const server = http.createServer(app);
 
+// Trust Render's load balancer so rate limiting works correctly
+app.set('trust proxy', 1);
+
 // Allow all origins in dev, restrict in production via CORS_ORIGIN env
 const corsOriginEnv = process.env.CORS_ORIGIN;
 // If CORS_ORIGIN is explicitly set to a comma-separated list, use that. Otherwise, allow all for dev.
