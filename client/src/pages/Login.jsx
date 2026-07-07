@@ -14,7 +14,7 @@ export default function Login() {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('onrender.com');
 
   useEffect(() => {
     fetchTenantInfo();

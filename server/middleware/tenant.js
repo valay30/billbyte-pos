@@ -10,9 +10,12 @@ const { getPlatformDb, queryPlatform } = require('../database/platform');
 function extractSlug(req) {
   const host = (req.headers.host || '').split(':')[0]; // strip port
 
-  // Production subdomain: caferoy.billbyte.com → caferoy
   const parts = host.split('.');
-  if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'admin') {
+  // Ignore free hosting domains, treat them as localhost fallback
+  if (host.includes('onrender.com') || host.includes('vercel.app')) {
+    // skip subdomain extraction and fall through to headers
+  }
+  else if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'admin') {
     return parts[0];
   }
 
