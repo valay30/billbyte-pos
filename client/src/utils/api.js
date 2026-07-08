@@ -30,8 +30,11 @@ api.interceptors.request.use(config => {
   const token = localStorage.getItem('billbyte_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
 
-  // Always send tenant slug so server knows which restaurant DB to use
-  config.headers['X-Tenant-Slug'] = getTenantSlug();
+  // Only set the tenant slug if it hasn't been explicitly passed in the request headers
+  // (e.g. during the login request where we want to use what the user typed)
+  if (!config.headers['X-Tenant-Slug'] && !config.headers['x-tenant-slug']) {
+    config.headers['X-Tenant-Slug'] = getTenantSlug();
+  }
 
   return config;
 });
