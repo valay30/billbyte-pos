@@ -91,7 +91,7 @@ router.post('/tenants', superAdminAuth, async (req, res) => {
       ['restaurant_name', name],
       ['loyalty_points_per_rupee', '0.1'],
       ['loyalty_redemption_ratio', '100'],
-      ['table_qr_base_url', `https://${slug}.${process.env.PLATFORM_DOMAIN || 'billbyte.com'}/menu`],
+      ['table_qr_base_url', `${process.env.APP_URL || 'https://billbyte-pos.onrender.com'}/menu`],
       ['receipt_footer', 'Thank you for dining with us!'],
     ];
     for (const [key, value] of settingsToInsert) {

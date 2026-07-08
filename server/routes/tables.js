@@ -80,13 +80,9 @@ router.delete('/:id', auth, async (req, res) => {
 router.get('/:id/qr', auth, async (req, res) => {
   try {
     const db = await getTenantDb(req.tenantSlug);
-    const settRes = await db.get("SELECT value FROM settings WHERE key = 'table_qr_base_url'");
-    let baseUrl = settRes ? settRes.value : (process.env.APP_URL ? process.env.APP_URL + '/menu' : 'http://localhost:5000/menu');
-    
-    let url = `${baseUrl}/${req.params.id}`;
-    if (baseUrl.includes('onrender.com') || baseUrl.includes('vercel.app') || baseUrl.includes('localhost')) {
-      url += `?tenant=${req.tenantSlug}`;
-    }
+    // Use the single-domain APP_URL for all QR codes, ignoring the old subdomain settings
+    const appUrl = process.env.APP_URL || 'https://billbyte-pos.onrender.com';
+    const url = `${appUrl}/menu/${req.params.id}?tenant=${req.tenantSlug}`;
     
     const qrData = await QRCode.toDataURL(url, { width: 300, margin: 2 });
     await db.run('UPDATE tables SET qr_code = ? WHERE id = ?', [qrData, req.params.id]);
