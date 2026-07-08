@@ -111,7 +111,7 @@ export default function Login() {
             </div>
 
             <button type="submit" className="btn btn-primary btn-lg w-full"
-              disabled={loading || !tenantInfo} style={{ marginTop: 4 }}>
+              disabled={loading} style={{ marginTop: 4 }}>
               {loading ? <span className="loading-spinner" /> : '→ Sign In'}
             </button>
           </form>
