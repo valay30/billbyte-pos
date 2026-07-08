@@ -100,7 +100,7 @@ router.post('/items', auth, async (req, res) => {
     const db = await getTenantDb(req.tenantSlug);
     const id = await db.insert(
       'INSERT INTO menu_items (category_id, name, description, price, mrp, cost_price, is_veg, tax_category, preparation_time, calories, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [category_id, name, description, price, mrp, cost_price || 0, is_veg ? 1 : 0, tax_category || 'gst5', preparation_time || 15, calories, tags]
+      [category_id === '' ? null : category_id, name, description, price === '' ? 0 : price, mrp === '' ? null : mrp, cost_price || 0, is_veg ? 1 : 0, tax_category || 'gst5', preparation_time || 15, calories === '' ? null : calories, tags]
     );
     res.json({ id, name, price });
   } catch (err) {
@@ -115,7 +115,7 @@ router.put('/items/:id', auth, async (req, res) => {
     const db = await getTenantDb(req.tenantSlug);
     await db.run(
       'UPDATE menu_items SET category_id=?, name=?, description=?, price=?, mrp=?, cost_price=?, is_veg=?, is_available=?, tax_category=?, preparation_time=?, calories=?, tags=? WHERE id=?',
-      [category_id, name, description, price, mrp, cost_price, is_veg ? 1 : 0, is_available ? 1 : 0, tax_category, preparation_time, calories, tags, req.params.id]
+      [category_id === '' ? null : category_id, name, description, price === '' ? 0 : price, mrp === '' ? null : mrp, cost_price === '' ? 0 : (cost_price || 0), is_veg ? 1 : 0, is_available ? 1 : 0, tax_category || 'gst5', preparation_time === '' ? 15 : (preparation_time || 15), calories === '' ? null : calories, tags, req.params.id]
     );
     res.json({ success: true });
   } catch (err) {
