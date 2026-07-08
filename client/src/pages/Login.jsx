@@ -1,60 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import api from '../utils/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
-  const [tenantInfo, setTenantInfo] = useState(null);
-  const [tenantLoading, setTenantLoading] = useState(false);
   const [slug, setSlug] = useState(localStorage.getItem('billbyte_tenant_slug') || '');
   const { login, loading } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
-  const debounceRef = useRef(null);
-
-  // Auto-fetch tenant info whenever the slug changes (with debounce)
-  useEffect(() => {
-    if (!slug.trim()) {
-      setTenantInfo(null);
-      return;
-    }
-    clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      localStorage.setItem('billbyte_tenant_slug', slug.trim());
-      fetchTenantInfo();
-    }, 500);
-    return () => clearTimeout(debounceRef.current);
-  }, [slug]);
-
-  // On first load, if we have a saved slug, load tenant info immediately
-  useEffect(() => {
-    if (slug.trim()) {
-      fetchTenantInfo();
-    }
-  }, []);
-
-  const fetchTenantInfo = async () => {
-    setTenantLoading(true);
-    try {
-      const res = await api.get('/tenant-info');
-      setTenantInfo(res.data);
-    } catch {
-      setTenantInfo(null);
-    } finally {
-      setTenantLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!tenantInfo) return toast.error('Please enter a valid Restaurant Code first.');
-    const result = await login(email, password);
+    if (!slug.trim()) return toast.error('Please enter your Restaurant Code.');
+    
+    // Pass the slug explicitly to the login function to ensure it doesn't rely on cached localStorage state
+    const result = await login(slug.trim(), email, password);
     if (result.success) {
-      toast.success(`Welcome to ${tenantInfo.name}!`);
+      toast.success('Login successful!');
       navigate('/dashboard');
     } else {
       toast.error(result.error);
@@ -106,41 +71,9 @@ export default function Login() {
                   value={slug}
                   onChange={e => setSlug(e.target.value.toLowerCase().replace(/\s/g, ''))}
                   autoFocus
-                  style={{ paddingRight: 44 }}
+                  required
                 />
-                <div style={{
-                  position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                  fontSize: 16, lineHeight: 1,
-                }}>
-                  {tenantLoading ? (
-                    <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>⏳</span>
-                  ) : tenantInfo ? (
-                    <span style={{ color: '#00D4AA' }}>✓</span>
-                  ) : slug.trim() ? (
-                    <span style={{ color: '#EF4444' }}>✗</span>
-                  ) : null}
-                </div>
               </div>
-
-              {/* Tenant status pill */}
-              {tenantInfo ? (
-                <div style={{
-                  marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 6,
-                  background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.2)',
-                  borderRadius: 20, padding: '4px 12px'
-                }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00D4AA', display: 'inline-block' }} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#00D4AA' }}>{tenantInfo.name}</span>
-                </div>
-              ) : slug.trim() && !tenantLoading ? (
-                <div style={{
-                  marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 6,
-                  background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
-                  borderRadius: 20, padding: '4px 12px'
-                }}>
-                  <span style={{ fontSize: 12, color: '#EF4444' }}>Restaurant not found — check the code</span>
-                </div>
-              ) : null}
             </div>
 
             {/* Email */}

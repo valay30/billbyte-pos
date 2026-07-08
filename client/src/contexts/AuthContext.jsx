@@ -9,10 +9,10 @@ export function AuthProvider({ children }) {
   });
   const [loading, setLoading] = useState(false);
 
-  const login = async (email, password) => {
+  const login = async (slug, email, password) => {
     setLoading(true);
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const res = await api.post('/auth/login', { email, password }, { headers: { 'x-tenant-slug': slug } });
       const { token, user } = res.data;
       localStorage.setItem('billbyte_token', token);
       localStorage.setItem('billbyte_user', JSON.stringify(user));
