@@ -145,7 +145,7 @@ export default function Tables() {
       </div>
 
       {/* Tables Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 16, marginBottom: 28, alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 28, alignItems: 'start' }}>
         {filteredTables.map(table => (
           <div
             key={table.id}
