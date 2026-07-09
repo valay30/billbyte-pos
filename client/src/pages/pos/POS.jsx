@@ -508,94 +508,259 @@ export default function POS() {
         display: isMobile && mobileTab !== 'cart' ? 'none' : 'flex',
         flexDirection: 'column',
         background: 'var(--bg-surface)',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        height: isMobile ? 'calc(100vh - 56px - 56px)' : '100%', // topbar + tab bar on mobile
       }}>
         {/* Cart Header */}
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{
+          padding: isMobile ? '12px 16px' : '14px 16px',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexShrink: 0,
+        }}>
           <div>
-            <span style={{ fontWeight: 700, fontSize: 16 }}>
+            <span style={{ fontWeight: 700, fontSize: isMobile ? 17 : 16 }}>
               🛒 Order {selectedTable ? `— ${selectedTable.name}` : ''}
             </span>
-            {existingOrder && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{existingOrder.order_number}</div>}
+            {existingOrder && (
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                {existingOrder.order_number}
+              </div>
+            )}
           </div>
-          <button className="btn btn-ghost btn-sm" onClick={clearCart}>Clear</button>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={clearCart}
+            style={{ color: 'var(--danger)', fontSize: isMobile ? 13 : 12 }}
+          >
+            🗑 Clear
+          </button>
         </div>
 
         {/* Customer Lookup */}
-        <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 6 }}>
+        <div style={{
+          padding: isMobile ? '10px 16px' : '10px 12px',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex', gap: 8,
+          flexShrink: 0,
+        }}>
           <input
             className="form-control"
             placeholder="📞 Customer phone"
             value={customerPhone}
             onChange={e => setCustomerPhone(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && lookupCustomer()}
-            style={{ fontSize: 12 }}
+            style={{ fontSize: isMobile ? 14 : 12, flex: 1 }}
           />
-          <button className="btn btn-secondary btn-sm" onClick={lookupCustomer}>Find</button>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={lookupCustomer}
+            style={{ whiteSpace: 'nowrap', minWidth: isMobile ? 56 : 'auto' }}
+          >
+            Find
+          </button>
         </div>
+
         {customer && (
-          <div style={{ padding: '8px 12px', background: 'rgba(255,107,53,0.08)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{
+            padding: isMobile ? '10px 16px' : '8px 12px',
+            background: 'rgba(255,107,53,0.08)',
+            borderBottom: '1px solid var(--border)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            flexShrink: 0,
+          }}>
             <div>
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>👤 {customer.name}</span>
-              <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 8 }}>{customer.loyalty_points} pts</span>
+              <span style={{ fontSize: isMobile ? 14 : 13, fontWeight: 700, color: 'var(--primary)' }}>
+                👤 {customer.name}
+              </span>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 8 }}>
+                {customer.loyalty_points} pts
+              </span>
             </div>
-            <button className="btn btn-ghost btn-sm" onClick={() => {
-              setCustomer(null);
-              if (existingOrder) { try { api.patch(`/orders/${existingOrder.id}/customer`, { customer_id: null }); } catch { } }
-            }}>✕</button>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => {
+                setCustomer(null);
+                if (existingOrder) { try { api.patch(`/orders/${existingOrder.id}/customer`, { customer_id: null }); } catch { } }
+              }}
+              style={{ fontSize: 16, padding: '4px 8px' }}
+            >
+              ✕
+            </button>
           </div>
         )}
 
-        {/* Cart Items */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '8px 12px' }}>
+        {/* Cart Items — scrollable */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: isMobile ? '4px 16px' : '8px 12px' }}>
           {cart.length === 0 ? (
-            <div className="empty-state" style={{ padding: '40px 20px' }}>
-              <div style={{ fontSize: 36 }}>🛒</div>
-              <p>Cart is empty</p>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Click items from the menu to add</p>
+            <div className="empty-state" style={{ padding: isMobile ? '48px 20px' : '40px 20px' }}>
+              <div style={{ fontSize: isMobile ? 48 : 36 }}>🛒</div>
+              <p style={{ fontSize: isMobile ? 15 : 14 }}>Cart is empty</p>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {isMobile ? 'Switch to Menu tab to add items' : 'Click items from the menu to add'}
+              </p>
             </div>
           ) : (
             cart.map(item => (
-              <div key={item.item_id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+              <div
+                key={item.item_id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: isMobile ? 10 : 8,
+                  padding: isMobile ? '12px 0' : '8px 0',
+                  borderBottom: '1px solid var(--border)',
+                }}
+              >
+                {/* Item name + price */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.item_name}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{formatCurrency(item.unit_price)} each</div>
+                  <div style={{
+                    fontSize: isMobile ? 14 : 13.5,
+                    fontWeight: 600,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    color: 'var(--text-primary)',
+                  }}>
+                    {item.item_name}
+                  </div>
+                  <div style={{ fontSize: isMobile ? 13 : 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                    {formatCurrency(item.unit_price)} each
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <button className="btn btn-secondary btn-sm btn-icon" onClick={() => updateQty(item.item_id, -1)} style={{ padding: '2px 8px', minWidth: 28 }}>−</button>
-                  <span style={{ fontSize: 14, fontWeight: 700, minWidth: 24, textAlign: 'center' }}>{item.quantity}</span>
-                  <button className="btn btn-secondary btn-sm btn-icon" onClick={() => updateQty(item.item_id, 1)} style={{ padding: '2px 8px', minWidth: 28 }}>+</button>
+
+                {/* Qty controls */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 4, flexShrink: 0 }}>
+                  <button
+                    className="btn btn-secondary btn-sm btn-icon"
+                    onClick={() => updateQty(item.item_id, -1)}
+                    style={{
+                      width: isMobile ? 34 : 28,
+                      height: isMobile ? 34 : 28,
+                      padding: 0,
+                      fontSize: isMobile ? 18 : 14,
+                      borderRadius: 8,
+                    }}
+                  >
+                    −
+                  </button>
+                  <span style={{
+                    fontSize: isMobile ? 16 : 14,
+                    fontWeight: 700,
+                    minWidth: isMobile ? 28 : 24,
+                    textAlign: 'center',
+                  }}>
+                    {item.quantity}
+                  </span>
+                  <button
+                    className="btn btn-secondary btn-sm btn-icon"
+                    onClick={() => updateQty(item.item_id, 1)}
+                    style={{
+                      width: isMobile ? 34 : 28,
+                      height: isMobile ? 34 : 28,
+                      padding: 0,
+                      fontSize: isMobile ? 18 : 14,
+                      borderRadius: 8,
+                    }}
+                  >
+                    +
+                  </button>
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--primary)', minWidth: 64, textAlign: 'right' }}>{formatCurrency(item.unit_price * item.quantity)}</div>
-                <button className="btn btn-ghost btn-sm" onClick={() => removeFromCart(item.item_id)} style={{ color: 'var(--danger)', padding: 4 }}>✕</button>
+
+                {/* Line total */}
+                <div style={{
+                  fontSize: isMobile ? 14 : 14,
+                  fontWeight: 700,
+                  color: 'var(--primary)',
+                  minWidth: isMobile ? 68 : 64,
+                  textAlign: 'right',
+                  flexShrink: 0,
+                }}>
+                  {formatCurrency(item.unit_price * item.quantity)}
+                </div>
+
+                {/* Remove */}
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => removeFromCart(item.item_id)}
+                  style={{
+                    color: 'var(--danger)',
+                    padding: isMobile ? '6px 8px' : 4,
+                    fontSize: isMobile ? 16 : 14,
+                    flexShrink: 0,
+                  }}
+                >
+                  ✕
+                </button>
               </div>
             ))
           )}
         </div>
 
         {/* Discount / Coupon */}
-        <div style={{ padding: '10px 12px', borderTop: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-            <select className="form-control" value={discount.type} onChange={e => setDiscount(d => ({ ...d, type: e.target.value }))} style={{ width: 120, fontSize: 12 }}>
+        <div style={{
+          padding: isMobile ? '12px 16px' : '10px 12px',
+          borderTop: '1px solid var(--border)',
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <select
+              className="form-control"
+              value={discount.type}
+              onChange={e => setDiscount(d => ({ ...d, type: e.target.value }))}
+              style={{ width: isMobile ? 130 : 120, fontSize: isMobile ? 14 : 12 }}
+            >
               <option value="percentage">% Discount</option>
               <option value="flat">₹ Flat Off</option>
             </select>
-            <input type="number" className="form-control" placeholder="0" value={discount.value || ''} onChange={e => setDiscount(d => ({ ...d, value: parseFloat(e.target.value) || 0 }))} style={{ flex: 1, fontSize: 12 }} />
+            <input
+              type="number"
+              className="form-control"
+              placeholder="0"
+              value={discount.value || ''}
+              onChange={e => setDiscount(d => ({ ...d, value: parseFloat(e.target.value) || 0 }))}
+              style={{ flex: 1, fontSize: isMobile ? 14 : 12 }}
+            />
           </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <input className="form-control" placeholder="Coupon Code" value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())} style={{ flex: 1, fontSize: 12 }} />
-            <button className="btn btn-secondary btn-sm" onClick={validateCoupon}>Apply</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              className="form-control"
+              placeholder="Coupon Code"
+              value={couponCode}
+              onChange={e => setCouponCode(e.target.value.toUpperCase())}
+              style={{ flex: 1, fontSize: isMobile ? 14 : 12 }}
+            />
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={validateCoupon}
+              style={{ whiteSpace: 'nowrap', minWidth: isMobile ? 64 : 'auto' }}
+            >
+              Apply
+            </button>
           </div>
           {customer?.loyalty_points > 0 && (
-            <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <input type="number" className="form-control" placeholder="Redeem points" value={loyaltyPoints || ''} max={customer.loyalty_points} onChange={e => setLoyaltyPoints(Math.min(parseInt(e.target.value) || 0, customer.loyalty_points))} style={{ flex: 1, fontSize: 12 }} />
-              <span style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Max: {customer.loyalty_points}</span>
+            <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="number"
+                className="form-control"
+                placeholder="Redeem points"
+                value={loyaltyPoints || ''}
+                max={customer.loyalty_points}
+                onChange={e => setLoyaltyPoints(Math.min(parseInt(e.target.value) || 0, customer.loyalty_points))}
+                style={{ flex: 1, fontSize: isMobile ? 14 : 12 }}
+              />
+              <span style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                Max: {customer.loyalty_points}
+              </span>
             </div>
           )}
         </div>
 
         {/* Bill Summary */}
-        <div style={{ padding: '10px 12px', borderTop: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+        <div style={{
+          padding: isMobile ? '12px 16px' : '10px 12px',
+          borderTop: '1px solid var(--border)',
+          background: 'var(--bg-card)',
+          flexShrink: 0,
+        }}>
           {[
             ['Subtotal', formatCurrency(cartSubtotal)],
             discountAmt > 0 && ['Discount', `-${formatCurrency(discountAmt)}`, 'var(--success)'],
@@ -604,30 +769,69 @@ export default function POS() {
             ['CGST (2.5%)', formatCurrency(cgst)],
             ['SGST (2.5%)', formatCurrency(sgst)],
           ].filter(Boolean).map(([label, val, col]) => (
-            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, marginBottom: 4 }}>
+            <div key={label} style={{
+              display: 'flex', justifyContent: 'space-between',
+              fontSize: isMobile ? 13.5 : 12.5,
+              marginBottom: isMobile ? 6 : 4,
+            }}>
               <span style={{ color: 'var(--text-muted)' }}>{label}</span>
-              <span style={{ color: col || 'var(--text-secondary)' }}>{val}</span>
+              <span style={{ color: col || 'var(--text-secondary)', fontWeight: 500 }}>{val}</span>
             </div>
           ))}
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 800, marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+          <div style={{
+            display: 'flex', justifyContent: 'space-between',
+            fontSize: isMobile ? 20 : 18,
+            fontWeight: 800,
+            marginTop: isMobile ? 10 : 8,
+            paddingTop: isMobile ? 10 : 8,
+            borderTop: '2px solid var(--border)',
+          }}>
             <span>TOTAL</span>
             <span style={{ color: 'var(--primary)' }}>{formatCurrency(cartTotal)}</span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{
+          padding: isMobile ? '12px 16px' : 12,
+          display: 'flex', flexDirection: 'column', gap: isMobile ? 10 : 8,
+          flexShrink: 0,
+        }}>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={placeOrder} disabled={loading || !cart.length}>
+            <button
+              className="btn btn-secondary"
+              style={{ flex: 1, height: isMobile ? 46 : 36, fontSize: isMobile ? 14 : 13 }}
+              onClick={placeOrder}
+              disabled={loading || !cart.length}
+            >
               {loading ? <span className="loading-spinner" /> : '📋 Send KOT'}
             </button>
-            <button className="btn btn-secondary btn-icon" onClick={() => setShowSplitModal(true)} title="Split Bill">⚡</button>
+            <button
+              className="btn btn-secondary btn-icon"
+              onClick={() => setShowSplitModal(true)}
+              title="Split Bill"
+              style={{ width: isMobile ? 46 : 36, height: isMobile ? 46 : 36, fontSize: isMobile ? 18 : 14 }}
+            >
+              ⚡
+            </button>
           </div>
-          <button className="btn btn-primary btn-lg" onClick={handleGenerateBillOnly} disabled={loading || (!cart.length && !existingOrder)} style={{ justifyContent: 'center', fontWeight: 700 }}>
+          <button
+            className="btn btn-primary"
+            onClick={handleGenerateBillOnly}
+            disabled={loading || (!cart.length && !existingOrder)}
+            style={{
+              justifyContent: 'center',
+              fontWeight: 700,
+              height: isMobile ? 52 : 44,
+              fontSize: isMobile ? 16 : 15,
+              borderRadius: isMobile ? 12 : 8,
+            }}
+          >
             🧾 Generate Bill
           </button>
         </div>
       </div>
+
 
       {/* Mobile bottom tab bar — only shown on small screens */}
       {isMobile && (

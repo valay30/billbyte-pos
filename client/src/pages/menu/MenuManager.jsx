@@ -97,56 +97,58 @@ export default function MenuManager() {
       {activeTab === 'items' && (
         <div>
           <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-            <input className="form-control" placeholder="🔍 Search items..." value={search} onChange={e => setSearch(e.target.value)} style={{ maxWidth: 260 }} />
-            <select className="form-control" value={selectedCat} onChange={e => setSelectedCat(e.target.value)} style={{ maxWidth: 200 }}>
+            <input className="form-control" placeholder="🔍 Search items..." value={search} onChange={e => setSearch(e.target.value)} style={{ flex: '1 1 200px', minWidth: 0 }} />
+            <select className="form-control" value={selectedCat} onChange={e => setSelectedCat(e.target.value)} style={{ flex: '1 1 150px', minWidth: 0 }}>
               <option value="all">All Categories</option>
               {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
             </select>
-            <div style={{ marginLeft: 'auto' }}>
-              <button className="btn btn-primary" onClick={openAddItem}>+ Add Item</button>
+            <div style={{ marginLeft: 'auto', flex: '1 1 100px', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn btn-primary" onClick={openAddItem} style={{ whiteSpace: 'nowrap' }}>+ Add Item</button>
             </div>
           </div>
 
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <table className="data-table">
-              <thead>
-                <tr><th>Item</th><th>Category</th><th>Price</th><th>Cost</th><th>GST</th><th>Status</th><th>Actions</th></tr>
-              </thead>
-              <tbody>
-                {filteredItems.map(item => (
-                  <tr key={item.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div className={`veg-dot ${item.is_veg ? 'veg' : 'nonveg'}`} />
-                        <div>
-                          <div style={{ fontWeight: 600 }}>{item.name}</div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{item.description?.slice(0, 40)}</div>
+            <div className="table-responsive">
+              <table className="data-table">
+                <thead>
+                  <tr><th>Item</th><th>Category</th><th>Price</th><th>Cost</th><th>GST</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  {filteredItems.map(item => (
+                    <tr key={item.id}>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div className={`veg-dot ${item.is_veg ? 'veg' : 'nonveg'}`} />
+                          <div>
+                            <div style={{ fontWeight: 600 }}>{item.name}</div>
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{item.description?.slice(0, 40)}</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td><span style={{ fontSize: 12 }}>{item.category_name}</span></td>
-                    <td style={{ fontWeight: 700, color: 'var(--primary)' }}>{formatCurrency(item.price)}</td>
-                    <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.cost_price > 0 ? formatCurrency(item.cost_price) : '-'}</td>
-                    <td><span className="badge badge-muted" style={{ fontSize: 10 }}>{item.tax_category?.toUpperCase()}</span></td>
-                    <td>
-                      <button
-                        className={`badge ${item.is_available ? 'badge-success' : 'badge-danger'}`}
-                        onClick={() => toggleItem(item.id)}
-                        style={{ cursor: 'pointer', border: 'none', background: 'none' }}
-                      >
-                        {item.is_available ? '● Available' : '○ Off'}
-                      </button>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 4 }}>
-                        <button className="btn btn-secondary btn-sm" onClick={() => openEditItem(item)}>Edit</button>
-                        <button className="btn btn-danger btn-sm" onClick={() => deleteItem(item.id)}>Del</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td><span style={{ fontSize: 12 }}>{item.category_name}</span></td>
+                      <td style={{ fontWeight: 700, color: 'var(--primary)' }}>{formatCurrency(item.price)}</td>
+                      <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.cost_price > 0 ? formatCurrency(item.cost_price) : '-'}</td>
+                      <td><span className="badge badge-muted" style={{ fontSize: 10 }}>{item.tax_category?.toUpperCase()}</span></td>
+                      <td>
+                        <button
+                          className={`badge ${item.is_available ? 'badge-success' : 'badge-danger'}`}
+                          onClick={() => toggleItem(item.id)}
+                          style={{ cursor: 'pointer', border: 'none', background: 'none' }}
+                        >
+                          {item.is_available ? '● Available' : '○ Off'}
+                        </button>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          <button className="btn btn-secondary btn-sm" onClick={() => openEditItem(item)}>Edit</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => deleteItem(item.id)}>Del</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             {filteredItems.length === 0 && <div className="empty-state"><div>🍽️</div><p>No items found</p></div>}
           </div>
         </div>
@@ -183,7 +185,7 @@ export default function MenuManager() {
               <span className="modal-title">{editItem ? 'Edit Item' : 'Add Menu Item'}</span>
               <button className="btn btn-ghost btn-sm" onClick={() => setShowItemModal(false)}>✕</button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="grid-2" style={{ gap: 14 }}>
               <div className="form-group" style={{ gridColumn: '1/-1' }}>
                 <label className="form-label">Item Name</label>
                 <input className="form-control" value={itemForm.name} onChange={e => setItemForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Paneer Tikka" />

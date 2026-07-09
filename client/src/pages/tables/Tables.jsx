@@ -116,7 +116,7 @@ export default function Tables() {
   return (
     <div>
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="stats-grid" style={{ marginBottom: 24 }}>
         {[['Total Tables', stats.total, '🪑', 'blue'],
           ['Available', stats.available, '✅', 'green'],
           ['Occupied', stats.occupied, '🔴', 'red'],
@@ -201,22 +201,24 @@ export default function Tables() {
         {reservations.length === 0 ? (
           <div className="empty-state"><div>📅</div><p>No reservations</p></div>
         ) : (
-          <table className="data-table">
-            <thead><tr><th>Customer</th><th>Phone</th><th>Table</th><th>Party</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
-            <tbody>
-              {reservations.map(r => (
-                <tr key={r.id}>
-                  <td>{r.customer_name}</td>
-                  <td>{r.customer_phone}</td>
-                  <td>{r.table_name}</td>
-                  <td>👥 {r.party_size}</td>
-                  <td>{r.reservation_date}</td>
-                  <td>{r.reservation_time}</td>
-                  <td><span className={`badge ${r.status === 'confirmed' ? 'badge-success' : 'badge-muted'}`}>{r.status}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="table-responsive">
+            <table className="data-table">
+              <thead><tr><th>Customer</th><th>Phone</th><th>Table</th><th>Party</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+              <tbody>
+                {reservations.map(r => (
+                  <tr key={r.id}>
+                    <td>{r.customer_name}</td>
+                    <td>{r.customer_phone}</td>
+                    <td>{r.table_name}</td>
+                    <td>👥 {r.party_size}</td>
+                    <td>{r.reservation_date}</td>
+                    <td>{r.reservation_time}</td>
+                    <td><span className={`badge ${r.status === 'confirmed' ? 'badge-success' : 'badge-muted'}`}>{r.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
