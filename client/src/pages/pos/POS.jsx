@@ -26,6 +26,8 @@ export default function POS() {
   const [splitParts, setSplitParts] = useState(2);
   const [settings, setSettings] = useState({});
   const [existingOrder, setExistingOrder] = useState(null);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+  const [mobileTab, setMobileTab] = useState('menu'); // 'menu' | 'cart'
 
   // Per-table cart memory: { [tableId]: { cart, existingOrder, customer, customerPhone, discount, couponCode, couponDiscount, loyaltyPoints, orderNotes } }
   // Persisted to localStorage so navigation away from POS does not lose draft orders.
@@ -44,6 +46,13 @@ export default function POS() {
   useEffect(() => {
     liveStateRef.current = { cart, existingOrder, customer, customerPhone, discount, couponCode, couponDiscount, loyaltyPoints, orderNotes, selectedTable };
   });
+
+  // Responsive: detect mobile/desktop on resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     // Load persisted table states from localStorage
@@ -384,10 +393,24 @@ export default function POS() {
     setOrderNotes('');
   };
 
+  const cartItemCount = cart.reduce((sum, c) => sum + c.quantity, 0);
+
   return (
-    <div style={{ margin: -24, height: 'calc(100vh - 64px)', display: 'grid', gridTemplateColumns: '1fr 400px' }}>
+    <div style={{
+      margin: -24,
+      height: isMobile ? 'calc(100vh - 56px)' : 'calc(100vh - 64px)',
+      display: 'grid',
+      gridTemplateColumns: isMobile ? '1fr' : '1fr 400px',
+      paddingBottom: isMobile ? 56 : 0,
+      position: 'relative',
+    }}>
       {/* Left: Menu Panel */}
-      <div style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--border)' }}>
+      <div style={{
+        overflow: 'hidden',
+        display: isMobile && mobileTab !== 'menu' ? 'none' : 'flex',
+        flexDirection: 'column',
+        borderRight: isMobile ? 'none' : '1px solid var(--border)'
+      }}>
         {/* Search + Table selector */}
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-surface)', display: 'flex', gap: 8 }}>
           <input
@@ -481,7 +504,12 @@ export default function POS() {
       </div>
 
       {/* Right: Cart Panel */}
-      <div style={{ display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)', overflow: 'hidden' }}>
+      <div style={{
+        display: isMobile && mobileTab !== 'cart' ? 'none' : 'flex',
+        flexDirection: 'column',
+        background: 'var(--bg-surface)',
+        overflow: 'hidden'
+      }}>
         {/* Cart Header */}
         <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
@@ -600,6 +628,44 @@ export default function POS() {
           </button>
         </div>
       </div>
+
+      {/* Mobile bottom tab bar — only shown on small screens */}
+      {isMobile && (
+        <div className="pos-mobile-tabs">
+          <button
+            className={`pos-mobile-tab ${mobileTab === 'menu' ? 'active' : ''}`}
+            onClick={() => setMobileTab('menu')}
+          >
+            <span className="pos-mobile-tab-icon">🍽️</span>
+            Menu
+          </button>
+          <button
+            className={`pos-mobile-tab ${mobileTab === 'cart' ? 'active' : ''}`}
+            onClick={() => setMobileTab('cart')}
+          >
+            <span className="pos-mobile-tab-icon" style={{ position: 'relative', display: 'inline-block' }}>
+              🛒
+              {cartItemCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: -6, right: -8,
+                  background: 'var(--primary)',
+                  color: 'white',
+                  fontSize: 9,
+                  fontWeight: 800,
+                  width: 16, height: 16,
+                  borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  lineHeight: 1,
+                }}>
+                  {cartItemCount > 9 ? '9+' : cartItemCount}
+                </span>
+              )}
+            </span>
+            Cart{cartItemCount > 0 ? ` (${cartItemCount})` : ''}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

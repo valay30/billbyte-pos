@@ -30,20 +30,28 @@ const NAV = [
   }
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const canSee = (roles) => !roles || roles.includes(user?.role);
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${open ? 'open' : ''}`}>
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">🍽️</div>
         <div className="sidebar-logo-text">
           <strong>BillByte POS</strong>
           <span>Restaurant System</span>
         </div>
+        {/* Close button — visible only on mobile via CSS */}
+        <button
+          className="sidebar-close-btn"
+          onClick={onClose}
+          aria-label="Close navigation menu"
+        >
+          ✕
+        </button>
       </div>
 
       <nav className="sidebar-nav">
@@ -55,6 +63,7 @@ export default function Sidebar() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                onClick={onClose}
               >
                 <span style={{ fontSize: '16px' }}>{item.icon}</span>
                 <span>{item.label}</span>
@@ -70,7 +79,8 @@ export default function Sidebar() {
             width: 36, height: 36, borderRadius: '50%',
             background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 14, fontWeight: 800, color: 'white'
+            fontSize: 14, fontWeight: 800, color: 'white',
+            flexShrink: 0
           }}>
             {user?.name?.[0]?.toUpperCase()}
           </div>

@@ -548,12 +548,217 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .divider { height: 1px; background: var(--border); margin: 16px 0; }
 
 /* ─── Responsive ─── */
+
+/* Sidebar overlay backdrop */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 99;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Hamburger menu button (hidden on desktop) */
+.hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 18px;
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.hamburger-btn:hover { background: var(--hover-bg-strong); }
+
+/* Sidebar close button (hidden on desktop) */
+.sidebar-close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--hover-bg-strong);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: auto;
+  flex-shrink: 0;
+  border: none;
+  transition: all var(--transition);
+}
+.sidebar-close-btn:hover { background: var(--danger-bg); color: var(--danger); }
+
+/* ── Tablet (769px–1024px) ── */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 220px;
+  }
+
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+
+  .topbar-actions .topbar-clock { display: none; }
+}
+
+/* ── Mobile (≤768px) ── */
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
+  :root {
+    --sidebar-width: 260px;
+    --topbar-height: 56px;
+  }
+
+  /* Sidebar becomes a slide-in drawer */
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 200;
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .sidebar-overlay.open { display: block; }
+  .sidebar-close-btn { display: flex; }
+
+  /* Main content takes full width */
   .main-content { margin-left: 0; }
+
+  /* Topbar: show hamburger, hide extras */
+  .hamburger-btn { display: flex; }
+  .topbar { padding: 0 14px; gap: 10px; }
+  .topbar-title { font-size: 15px; }
+  .topbar-actions .topbar-clock { display: none; }
+  .topbar-actions .topbar-online { display: none; }
+  .topbar-actions .topbar-theme {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  /* Hide theme label text on very small screens */
+  .topbar-actions .topbar-theme .theme-label { display: none; }
+
+  /* Page content padding */
+  .page-content { padding: 14px; }
+
+  /* Grids collapse to 1 column */
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+  .grid-4 { grid-template-columns: 1fr 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+
+  /* Cards get smaller padding */
+  .card { padding: 14px; }
+  .stat-card { padding: 14px; gap: 12px; }
+  .stat-icon { width: 40px; height: 40px; font-size: 18px; }
+  .stat-value { font-size: 20px; }
+
+  /* Section header wraps */
+  .section-header { flex-direction: column; align-items: flex-start; }
+
+  /* Modals — bottom sheet style on mobile */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-width: 100%;
+    width: 100%;
+    max-height: 92vh;
+    padding: 20px 16px;
+  }
+  .modal-lg, .modal-xl { max-width: 100%; }
+
+  /* Toast — full width at bottom */
+  .toast-container {
+    top: auto;
+    bottom: 16px;
+    right: 12px;
+    left: 12px;
+  }
+  .toast { min-width: 0; max-width: 100%; }
+
+  /* Table grid smaller cells */
+  .table-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+
+  /* KDS grid single column */
+  .kds-grid { grid-template-columns: 1fr; }
+
+  /* Data table: horizontal scroll */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .data-table { min-width: 540px; }
+
+  /* Tab bar full width */
+  .tab-bar { flex-wrap: nowrap; overflow-x: auto; }
+
+  /* POS layout — stacked on mobile (handled by POS.jsx via JS) */
+  .pos-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .pos-menu-panel { height: calc(100vh - var(--topbar-height) - 60px); }
+  .pos-cart-panel { height: calc(100vh - var(--topbar-height)); }
+
+  /* POS mobile tab switcher */
+  .pos-mobile-tabs {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    height: 56px;
+  }
+  .pos-mobile-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition);
+    border: none;
+    background: none;
+    padding: 4px;
+  }
+  .pos-mobile-tab.active { color: var(--primary); }
+  .pos-mobile-tab-icon { font-size: 20px; }
+
+  /* Cart FAB — adjust so it doesn't overlap mobile tab bar */
+  .cart-fab { bottom: 72px; }
+
+  /* Buttons — make touch targets bigger */
+  .btn { min-height: 36px; }
+  .btn-sm { min-height: 30px; }
+
+  /* Form controls — bigger on mobile */
+  .form-control { padding: 11px 14px; font-size: 15px; }
+
+  /* Empty state smaller padding */
+  .empty-state { padding: 40px 20px; }
+}
+
+/* ── Very small (≤400px) ── */
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .topbar-title { font-size: 14px; }
 }
 
 /* ─── POS Specific ─── */
