@@ -24,7 +24,7 @@ async function getPlatformDb() {
 
   if (!initialized) {
     await p.query(`
-      CREATE TABLE IF NOT EXISTS tenants (
+      CREATE TABLE IF NOT EXISTS public.tenants (
         id        SERIAL PRIMARY KEY,
         slug      TEXT UNIQUE NOT NULL,
         name      TEXT NOT NULL,

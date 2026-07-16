@@ -79,6 +79,7 @@ async function getTenantDb(slug) {
       const normalized = normalizeSql(toPositional(sql));
       return await client.query(normalized, cleanParams(params));
     } finally {
+      await client.query(`SET search_path TO public`);
       client.release();
     }
   }
@@ -112,6 +113,7 @@ async function getTenantDb(slug) {
         await client.query(`SET search_path TO "${schemaName}", public`);
         await client.query(normalizeSql(sql));
       } finally {
+        await client.query(`SET search_path TO public`);
         client.release();
       }
     },

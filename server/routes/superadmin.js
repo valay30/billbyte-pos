@@ -27,7 +27,7 @@ function superAdminAuth(req, res, next) {
 router.get('/tenants', superAdminAuth, async (req, res) => {
   try {
     await getPlatformDb();
-    const tenants = await queryPlatform('SELECT * FROM tenants ORDER BY created_at DESC');
+    const tenants = await queryPlatform('SELECT * FROM public.tenants ORDER BY created_at DESC');
     // Attach order stats from each tenant's DB
     const enriched = await Promise.all(tenants.map(async t => {
       try {
@@ -64,14 +64,14 @@ router.post('/tenants', superAdminAuth, async (req, res) => {
     await getPlatformDb();
 
     // Check slug not taken
-    const existing = await queryPlatform('SELECT id FROM tenants WHERE slug = ?', [slug]);
+    const existing = await queryPlatform('SELECT id FROM public.tenants WHERE slug = ?', [slug]);
     if (existing.length) {
       return res.status(400).json({ error: `Slug "${slug}" is already taken` });
     }
 
     // Register in platform DB
     await pool.query(
-      'INSERT INTO tenants (slug, name, admin_email) VALUES ($1, $2, $3)',
+      'INSERT INTO public.tenants (slug, name, admin_email) VALUES ($1, $2, $3)',
       [slug, name, admin_email]
     );
 
@@ -134,7 +134,7 @@ router.put('/tenants/:slug', superAdminAuth, async (req, res) => {
   try {
     const { status, name } = req.body;
     await pool.query(
-      'UPDATE tenants SET status=$1, name=$2, updated_at=NOW() WHERE slug=$3',
+      'UPDATE public.tenants SET status=$1, name=$2, updated_at=NOW() WHERE slug=$3',
       [status, name, req.params.slug]
     );
     res.json({ success: true });
@@ -161,7 +161,7 @@ router.delete('/tenants/:slug', superAdminAuth, async (req, res) => {
   try {
     const schemaName = `tenant_${req.params.slug.replace(/[^a-z0-9_]/gi, '_').toLowerCase()}`;
     await pool.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
-    await pool.query('DELETE FROM tenants WHERE slug=$1', [req.params.slug]);
+    await pool.query('DELETE FROM public.tenants WHERE slug=$1', [req.params.slug]);
     res.json({ success: true, message: `Tenant ${req.params.slug} and their data have been permanently deleted.` });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -172,7 +172,7 @@ router.delete('/tenants/:slug', superAdminAuth, async (req, res) => {
 router.get('/stats', superAdminAuth, async (req, res) => {
   try {
     await getPlatformDb();
-    const tenants = await queryPlatform('SELECT * FROM tenants');
+    const tenants = await queryPlatform('SELECT * FROM public.tenants');
     res.json({
       total_restaurants: tenants.length,
       active: tenants.filter(t => t.status === 'active').length,
