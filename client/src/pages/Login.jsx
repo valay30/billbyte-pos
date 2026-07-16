@@ -15,7 +15,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!slug.trim()) return toast.error('Please enter your Restaurant Code.');
-    
+
     // Pass the slug explicitly to the login function to ensure it doesn't rely on cached localStorage state
     const result = await login(slug.trim(), email.trim(), password);
     if (result.success) {
